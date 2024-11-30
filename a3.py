@@ -50,6 +50,9 @@ def main():
 
     # Load image and convert to numpy array
     image = Image.open(inFileName)
+    
+    # image.mode - L or RGB
+    
     numpyArr = np.asarray(image, dtype='float32')
 
     # Choose algorithm based on user input
