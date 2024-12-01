@@ -7,12 +7,19 @@ wp.init()
 computeDevice = "cpu" # "cuda" for gpu
 
 @wp.kernel
-def sharpen_kernel(input_image: wp.array(dtype=float), output_image: wp.array(dtype=float), kern_size: int, param: float):
+def passthrough_kernel(input_image: wp.array(dtype=float, ndim=3), output_image: wp.array(dtype=float, ndim=3), kern_size: int, param: float):
+    i, j = wp.tid()
+    
+    for c in range(3):
+        output_image[i, j, c] = input_image[i, j, c]
+
+@wp.kernel
+def sharpen_kernel(input_image: wp.array(dtype=float, ndim=3), output_image: wp.array(dtype=float, ndim=3), kern_size: int, param: float):
     # sharpening kernel
     pass
 
 @wp.kernel
-def noise_removal_kernel(input_image: wp.array(dtype=float), output_image: wp.array(dtype=float), kern_size: int, param: float):
+def noise_removal_kernel(input_image: wp.array(dtype=float, ndim=3), output_image: wp.array(dtype=float, ndim=3), kern_size: int, param: float):
     # noise removal kernel
     pass
 
@@ -25,7 +32,7 @@ def apply_kernel(kernel, input_array, kern_size, param):
     # Launch kernel
     wp.launch(
         kernel=kernel,
-        dim=input_gpu.shape[:2],  # Assuming 2D image
+        dim=input_gpu.shape[:2],
         inputs=[input_gpu, output_gpu, kern_size, param]
     )
 
@@ -51,7 +58,16 @@ def main():
     # Load image and convert to numpy array
     image = Image.open(inFileName)
     
-    # image.mode - L or RGB
+    mode = image.mode
+    if mode == 'L':
+        channels = 1
+    elif mode == 'RGB':
+        channels = 3
+    elif mode == 'RGBA':
+        channels = 4
+    else:
+        print("Error: unsupported image mode.")
+        sys.exit(1)
     
     numpyArr = np.asarray(image, dtype='float32')
 
@@ -60,6 +76,8 @@ def main():
         result = apply_kernel(sharpen_kernel, numpyArr, kernSize, param)
     elif algType == "-n":
         result = apply_kernel(noise_removal_kernel, numpyArr, kernSize, param)
+    elif algType == "-p":
+        result = apply_kernel(passthrough_kernel, numpyArr, kernSize, param)
     else:
         print("Error: algType must be '-s' for sharpen or '-n' for noise removal.")
         sys.exit(1)
