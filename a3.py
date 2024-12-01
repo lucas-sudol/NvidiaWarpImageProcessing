@@ -33,7 +33,8 @@ def apply_kernel(kernel, input_array, kern_size, param):
     wp.launch(
         kernel=kernel,
         dim=input_gpu.shape[:2],
-        inputs=[input_gpu, output_gpu, kern_size, param]
+        inputs=[input_gpu, output_gpu, kern_size, param],
+        device=computeDevice
     )
 
     # Copy the result back to CPU
