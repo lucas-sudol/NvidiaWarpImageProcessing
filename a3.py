@@ -14,12 +14,22 @@ def passthrough_kernel(input_image: wp.array(dtype=float, ndim=3), output_image:
         output_image[i, j, c] = input_image[i, j, c]
 
 @wp.kernel
-def sharpen_kernel(input_image: wp.array(dtype=float, ndim=3), output_image: wp.array(dtype=float, ndim=3), kern_size: int, param: float):
+def sharpen_kernel_1(input_image: wp.array(dtype=float, ndim=1), output_image: wp.array(dtype=float, ndim=1), kern_size: int, param: float):
     # sharpening kernel
     pass
 
 @wp.kernel
-def noise_removal_kernel(input_image: wp.array(dtype=float, ndim=3), output_image: wp.array(dtype=float, ndim=3), kern_size: int, param: float):
+def sharpen_kernel_3(input_image: wp.array(dtype=float, ndim=3), output_image: wp.array(dtype=float, ndim=3), kern_size: int, param: float):
+    # sharpening kernel
+    pass
+
+@wp.kernel
+def noise_removal_kernel_1(input_image: wp.array(dtype=float, ndim=1), output_image: wp.array(dtype=float, ndim=1), kern_size: int, param: float):
+    # noise removal kernel
+    pass
+
+@wp.kernel
+def noise_removal_kernel_3(input_image: wp.array(dtype=float, ndim=3), output_image: wp.array(dtype=float, ndim=3), kern_size: int, param: float):
     # noise removal kernel
     pass
 
@@ -64,8 +74,6 @@ def main():
         channels = 1
     elif mode == 'RGB':
         channels = 3
-    elif mode == 'RGBA':
-        channels = 4
     else:
         print("Error: unsupported image mode.")
         sys.exit(1)
