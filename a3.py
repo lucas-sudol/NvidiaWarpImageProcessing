@@ -6,6 +6,7 @@ import warp as wp
 wp.init()
 computeDevice = "cpu" #"cuda" for gpu
 
+#unsharp mask based sharpening for monochrome images
 @wp.kernel
 def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_image: wp.array(dtype=wp.float32, ndim=2), kern_size: int, param: float):
     # sharpening kernel
@@ -13,7 +14,7 @@ def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_ima
     flipx = 1
     flipy = 1
 
-    #Get offsets for i,j for 
+    #Get offsets for i,j for kernel size
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
@@ -30,8 +31,10 @@ def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_ima
 
     #Divide by number of tiles to find mean
     output_image[i, j] *= (1.0/float(kern_size * kern_size))
-    output_image[i, j] = input_image[i,j] + param*(input_image[i,j] - output_image[i, j])
 
+    output_image[i, j] = input_image[i,j] + param*(input_image[i,j] - output_image[i, j]) #calculate edge image, and add to original multiply based on parameter
+
+    #Check for value rollover
     if(output_image[i, j] > 255.0):
         output_image[i, j] = 255.0
 
@@ -39,6 +42,7 @@ def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_ima
         output_image[i, j] = 0.0
     pass
 
+#unsharp mask based sharpening for RGB images
 @wp.kernel
 def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_image: wp.array(dtype=wp.float32, ndim=3), kern_size: int, param: float):
     # sharpening kernel
@@ -46,7 +50,7 @@ def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_ima
     flipx = 1
     flipy = 1
 
-    #Get offsets for i,j for 
+    #Get offsets for i,j for kernel size
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
@@ -62,9 +66,11 @@ def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_ima
             flipy = 1
 
     #Divide by number of tiles to find mean
-    output_image[i, j, k] *= (1.0/float(kern_size * kern_size))
-    output_image[i, j, k] = (input_image[i,j,k] + param*(input_image[i,j,k] - output_image[i,j,k]))
+    output_image[i, j, k] *= (1.0/float(kern_size * kern_size)) 
 
+    output_image[i, j, k] = (input_image[i,j,k] + param*(input_image[i,j,k] - output_image[i,j,k])) #calculate edge image, and add to original multiply based on parameter
+
+    #Check for value rollover
     if(output_image[i, j, k] > 255.0):
         output_image[i, j, k] = 255.0
 
@@ -73,6 +79,7 @@ def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_ima
 
     pass
 
+#gaussian based noise removal for monochrome images
 @wp.kernel
 def noise_removal_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_image: wp.array(dtype=wp.float32, ndim=2), kern_size: int, param: float):
     # noise removal kernel
@@ -84,7 +91,7 @@ def noise_removal_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), outp
     weight = float(0.0)
 
 
-    #Get offsets for i,j for 
+    #Get offsets for i,j for kernel size
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
@@ -106,6 +113,7 @@ def noise_removal_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), outp
     output_image[i, j] *= (1.0 / weights)
     pass
 
+#gaussian based noise removal for RGB images
 @wp.kernel
 def noise_removal_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_image: wp.array(dtype=wp.float32, ndim=3), kern_size: int, param: float):
     # noise removal kernel
@@ -117,7 +125,7 @@ def noise_removal_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), outp
     weight = float(0.0)
 
 
-    #Get offsets for i,j for 
+    #Get offsets for i,j for kernel size
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
@@ -138,8 +146,6 @@ def noise_removal_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), outp
     #Divide by number of tiles
     output_image[i, j, k] *= (1.0 / weights)
     pass
-
-
 
 #Initialize Kernel
 def apply_kernel(kernel, input_array, kern_size, param, channels):
@@ -187,6 +193,7 @@ def main():
         print("Error: unsupported image mode.")
         sys.exit(1)
     
+    #Convert to Numpy array
     numpyArr = np.asarray(image, dtype='float32')
 
     # Choose algorithm based on user input
@@ -196,7 +203,7 @@ def main():
         else:
             result = apply_kernel(sharpen_kernel_3, numpyArr, kernSize, param, channels) #Color
 
-    elif algType == "-n": #De Noise
+    elif algType == "-n": #Noise reduction
         if channels == 2:
             result = apply_kernel(noise_removal_kernel_1, numpyArr, kernSize, param, channels) #Black and white
         else:
