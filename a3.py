@@ -40,7 +40,7 @@ def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_ima
 
     if (output_image[i, j] < 0.0):
         output_image[i, j] = 0.0
-    pass
+
 
 #unsharp mask based sharpening for RGB images
 @wp.kernel
@@ -77,7 +77,6 @@ def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_ima
     if (output_image[i, j, k] < 0.0):
         output_image[i, j,k ] = 0.0
 
-    pass
 
 #gaussian based noise removal for monochrome images
 @wp.kernel
@@ -111,7 +110,7 @@ def noise_removal_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), outp
 
     #Divide by number of tiles
     output_image[i, j] *= (1.0 / weights)
-    pass
+
 
 #gaussian based noise removal for RGB images
 @wp.kernel
@@ -145,7 +144,7 @@ def noise_removal_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), outp
 
     #Divide by number of tiles
     output_image[i, j, k] *= (1.0 / weights)
-    pass
+
 
 #Initialize Kernel
 def apply_kernel(kernel, input_array, kern_size, param, channels):
