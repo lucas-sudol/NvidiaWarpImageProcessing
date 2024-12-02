@@ -56,5 +56,3 @@ Lucas Sudol - 1227984
 
 Sebastian Kula - 1247993
 
-
-## Acknowledgments
