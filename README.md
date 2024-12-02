@@ -3,7 +3,8 @@
 ## Description
 Project implements parrelizable image processing using Nvidia Warp. Implements both noise reduction and sharpening algorithms. Can be ran serially on the CPU, or in parallel if ran with an Nvidia GPU. 
 
-Image sharpening is done through a unsharp mask mased algorithm. First the image is blurred using a simple mean averaging filter for noise removal. Then the blurred image is subtracted from the original one, created an edge image. This image highlights high intensity areas, and extracts important features. 
+Image sharpening is done through an unsharp mask based algorithm. First the image is blurred using a simple mean averaging filter for noise removal. Then the blurred image is subtracted from the original one, creating an edge image. This image highlights high intensity areas, and extracts important features. This edge image is then added to the original with a multiplier, applying a variable degree of sharpening to the output image.
+
 
 ## Getting Started
 
