@@ -4,7 +4,7 @@ from PIL import Image
 import warp as wp
 
 wp.init()
-computeDevice = "cuda" # "cuda" for gpu
+computeDevice = "cpu" #"cuda" for gpu
 
 @wp.kernel
 def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_image: wp.array(dtype=wp.float32, ndim=2), kern_size: int, param: float):
@@ -35,6 +35,8 @@ def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_ima
     if(output_image[i, j] > 255.0):
         output_image[i, j] = 255.0
 
+    if (output_image[i, j] < 0.0):
+        output_image[i, j] = 0.0
     pass
 
 @wp.kernel
@@ -66,6 +68,9 @@ def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_ima
     if(output_image[i, j, k] > 255.0):
         output_image[i, j, k] = 255.0
 
+    if (output_image[i, j, k] < 0.0):
+        output_image[i, j,k ] = 0.0
+
     pass
 
 @wp.kernel
@@ -89,7 +94,7 @@ def noise_removal_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), outp
             if j+y < 0 or j+y > output_image.shape[1]: #check if tile is below 0 or above max y value
                 flipy = -1
 
-            weight = wp.exp(-(float(x) * float(x) + float(y) * float(y)) / (2.0 * param * param))
+            weight = wp.exp(-(float(x*x) + float(y*y)) / (2.0 * param * param))
             weights += weight
 
             #Accumulate tiles to output image
@@ -122,7 +127,7 @@ def noise_removal_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), outp
             if j+y < 0 or j+y > output_image.shape[1]: #check if tile is below 0 or above max y value
                 flipy = -1
 
-            weight = wp.exp(-(float(x) * float(x) + float(y) * float(y)) / (2.0 * param * param))
+            weight = wp.exp(-(float(x*x) + float(y*y)) / (2.0 * param * param))
             weights += weight
 
             #Accumulate tiles to output image
@@ -133,13 +138,6 @@ def noise_removal_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), outp
     #Divide by number of tiles
     output_image[i, j, k] *= (1.0 / weights)
     pass
-
-
-
-
-
-
-
 
 
 
@@ -173,7 +171,7 @@ def main():
     outFileName = sys.argv[5]
 
     # Check kernSize
-    if kernSize <= 0 or kernSize % 2 == 0:
+    if kernSize < 1 or kernSize % 2 == 0:
         print("Error: kernSize must be a positive odd number.")
         sys.exit(1)
 
@@ -194,22 +192,20 @@ def main():
     # Choose algorithm based on user input
     if algType == "-s": #Sharpen
         if channels == 2:
-            result = apply_kernel(sharpen_kernel_1, numpyArr, kernSize, param, channels)
+            result = apply_kernel(sharpen_kernel_1, numpyArr, kernSize, param, channels) #Black and white
         else:
-            result = apply_kernel(sharpen_kernel_3, numpyArr, kernSize, param, channels)
+            result = apply_kernel(sharpen_kernel_3, numpyArr, kernSize, param, channels) #Color
 
     elif algType == "-n": #De Noise
         if channels == 2:
-            result = apply_kernel(noise_removal_kernel_1, numpyArr, kernSize, param, channels)
+            result = apply_kernel(noise_removal_kernel_1, numpyArr, kernSize, param, channels) #Black and white
         else:
-            result = apply_kernel(noise_removal_kernel_3, numpyArr, kernSize, param, channels)
+            result = apply_kernel(noise_removal_kernel_3, numpyArr, kernSize, param, channels) #Color
             
 
     else:
         print("Error: algType must be '-s' for sharpen or '-n' for noise removal.")
         sys.exit(1)
-
-    print(channels)
 
     # Save the output image
     result_image = Image.fromarray(result.astype('uint8'))
