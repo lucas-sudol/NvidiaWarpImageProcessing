@@ -167,7 +167,7 @@ def apply_kernel(kernel, input_array, kern_size, param, channels):
 
 def main():
     if len(sys.argv) != 6:
-        print("Usage: python3 a3.py  algType (-s (sharpen) -n (noise removal)) kernSize param inFileName outFileName")
+        print("Usage: python3 a3.py <algType> <kernSize> <param> <inFileName> <outFileName>")
         sys.exit(1)
 
     algType = sys.argv[1]
