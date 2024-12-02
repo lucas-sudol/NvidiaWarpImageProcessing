@@ -19,15 +19,16 @@ reflected, choosing a value that exists in the image.
 ## Getting Started
 
 ### Dependencies
-Python libraries numpy, pillow and warp-lang
-```pip install numpy pillow warp-lang```
+Python libraries numpy, pillow and warp-lang:
+        
+    pip install numpy pillow warp-lang
 
 ### Executing program
 Change "cpu" to "cuda" if your computer is equipped with a Nvidia graphics card (a3.py line 7)
 
-* How to run the program: 
-
-    ```python3 a3.py <algType> <kernSize> <param> <inFileName> <outFileName>```
+* Run the program with the following command: 
+        
+        python3 a3.py <algType> <kernSize> <param> <inFileName> <outFileName>
 
 Arguments:
 ```
@@ -46,12 +47,13 @@ Arguments:
 
 Example:
 ```
-  python3 a3.py -s 3 0.3 input.jpg output.jpg
+python3 a3.py -s 3 0.3 input.jpg output.jpg
 ```
 
 ## Author Information
-Lucas Sudol
-Sebastian Kula
+Lucas Sudol - 1227984
+
+Sebastian Kula - 1247993
 
 
 ## Acknowledgments
