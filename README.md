@@ -12,10 +12,20 @@ Python libraries numpy, pillow and warp-lang
 ```pip install numpy pillow warp-lang```
 
 ### Executing program
-Change cpu -> cuda if computer is equiped with Nvidia graphics card (a3.py line 7)
+Change "cpu" to "cuda" if your computer is equipped with a Nvidia graphics card (a3.py line 7)
 
-* How to build and run the program
-python3 a3.py  algType(-s (sharpen) -n (noise removal)) kernSize param inFileName (image in) outFileName (image out)
+* How to run the program: 
+
+    ```python3 a3.py <algType> <kernSize> <param> <inFileName> <outFileName>```
+
+Arguments:
+```
+    <algType>       Algorithm type: specify "-s" for sharpening or "-n" for noise removal
+    <kernSize>      Size of the kernel (e.g., 3 (3x3 grid), 5 (5x5 grid), 7 (7x7 grid))
+    <param>         Parameter for the algorithm (e.g., intensity factor)
+    <inFileName>    Input image file name (e.g., input.jpg)
+    <outFileName>   Output image file name (e.g., output.jpg)
+```
 
 -s Applies sharpening algorithm to the image. Uses unsharp masking
     param - scaling constant for the impact of the edge image. Recommended values of 0.3-0.7 
@@ -23,9 +33,10 @@ python3 a3.py  algType(-s (sharpen) -n (noise removal)) kernSize param inFileNam
 -n Applies noise reduction algorithm to the image. Uses gaussian filtering
     param - used for gaussian weights, is the scale of weight distribution of the neighbourhood. Larger values increase blurring. Increase kernel dimensions in correlation to weight increase
 
-kernsize 3 (3x3 grid), 5 (5x5 grid) etc
-
-eg: python3 a3.py -s 3 0.3 test.jpg out.jpg
+Example:
+```
+  python3 a3.py -s 3 0.3 input.jpg output.jpg
+```
 
 ## Author Information
 Lucas Sudol
