@@ -24,11 +24,11 @@ Python libraries numpy, pillow and warp-lang:
     pip install numpy pillow warp-lang
 
 ### Executing program
-Change "cpu" to "cuda" if your computer is equipped with a Nvidia graphics card (a3.py line 7)
+Change "cpu" to "cuda" if your computer is equipped with a Nvidia graphics card (imageProcess.py line 7)
 
 * Run the program with the following command: 
     ```
-    python3 a3.py <algType> <kernSize> <param> <inFileName> <outFileName>
+    python3 imageProcess.py <algType> <kernSize> <param> <inFileName> <outFileName>
     ```
 
 Arguments:
@@ -48,11 +48,10 @@ Arguments:
 
 Example:
 ```
-python3 a3.py -s 3 0.3 input.jpg output.jpg
+python3 imageProcess.py -s 3 0.3 input.jpg output.jpg
 ```
 
 ## Author Information
-Lucas Sudol - 1227984
-
-Sebastian Kula - 1247993
+Lucas Sudol
+Sebastian Kula
 
