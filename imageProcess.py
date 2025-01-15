@@ -54,6 +54,38 @@ def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_ima
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
+            if (i+x) < 0 or (i+x >= output_image.shape[0]): #check if tile is below 0 or above max x value
+                flipx = -1
+
+            if (j+y) < 0 or (j+y >= output_image.shape[1]): #check if tile is below 0 or above max y value
+                flipy = -1
+
+            #Accumulate tiles to output image
+            output_image[i, j, k] += input_image[i + x*flipx, j + y*flipy, k]
+            flipx = 1
+            flipy = 1
+
+    #Divide by number of tiles to find mean
+    output_image[i, j, k] *= (1.0/float(kern_size * kern_size)) 
+
+    output_image[i, j, k] = (input_image[i,j,k] + param*(input_image[i,j,k] - output_image[i,j,k])) #calculate edge image, and add to original multiply based on parameter
+    #Check for value rollover
+    if(output_image[i, j, k] > 255.0):
+        output_image[i, j, k] = 255.0
+
+    if (output_image[i, j, k] < 0.0):
+        output_image[i, j,k ] = 0.0
+
+    """
+    # sharpening kernel
+    i, j, k = wp.tid()
+    flipx = 1
+    flipy = 1
+
+    #Get offsets for i,j for kernel size
+    for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
+        for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
+            #Border Handling by reflection
             if i+x < 0 or i+x > output_image.shape[0]: #check if tile is below 0 or above max x value
                 flipx = -1
 
@@ -69,13 +101,13 @@ def sharpen_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), output_ima
     output_image[i, j, k] *= (1.0/float(kern_size * kern_size)) 
 
     output_image[i, j, k] = (input_image[i,j,k] + param*(input_image[i,j,k] - output_image[i,j,k])) #calculate edge image, and add to original multiply based on parameter
-
     #Check for value rollover
     if(output_image[i, j, k] > 255.0):
         output_image[i, j, k] = 255.0
 
     if (output_image[i, j, k] < 0.0):
         output_image[i, j,k ] = 0.0
+    """
 
 
 #gaussian based noise removal for monochrome images
