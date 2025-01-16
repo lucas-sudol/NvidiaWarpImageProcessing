@@ -18,10 +18,10 @@ def sharpen_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), output_ima
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
-            if i+x < 0 or i+x > output_image.shape[0]: #check if tile is below 0 or above max x value
+            if i+x < 0 or i+x >= output_image.shape[0]: #check if tile is below 0 or above max x value
                 flipx = -1
 
-            if j+y < 0 or j+y > output_image.shape[1]: #check if tile is below 0 or above max y value
+            if j+y < 0 or j+y >= output_image.shape[1]: #check if tile is below 0 or above max y value
                 flipy = -1
 
             #Accumulate tiles to output image
@@ -93,10 +93,10 @@ def noise_removal_kernel_1(input_image: wp.array(dtype=wp.float32, ndim=2), outp
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
-            if i+x < 0 or i+x > output_image.shape[0]: #check if tile is below 0 or above max x value
+            if i+x < 0 or i+x >= output_image.shape[0]: #check if tile is below 0 or above max x value
                 flipx = -1
 
-            if j+y < 0 or j+y > output_image.shape[1]: #check if tile is below 0 or above max y value
+            if j+y < 0 or j+y >= output_image.shape[1]: #check if tile is below 0 or above max y value
                 flipy = -1
 
             weight = wp.exp(-(float(x*x) + float(y*y)) / (2.0 * param * param))
@@ -127,10 +127,10 @@ def noise_removal_kernel_3(input_image: wp.array(dtype=wp.float32, ndim=3), outp
     for x in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
         for y in range(-(kern_size-1)/2, (kern_size-1)/2 + 1):
             #Border Handling by reflection
-            if i+x < 0 or i+x > output_image.shape[0]: #check if tile is below 0 or above max x value
+            if i+x < 0 or i+x >= output_image.shape[0]: #check if tile is below 0 or above max x value
                 flipx = -1
 
-            if j+y < 0 or j+y > output_image.shape[1]: #check if tile is below 0 or above max y value
+            if j+y < 0 or j+y >= output_image.shape[1]: #check if tile is below 0 or above max y value
                 flipy = -1
 
             weight = wp.exp(-(float(x*x) + float(y*y)) / (2.0 * param * param))
